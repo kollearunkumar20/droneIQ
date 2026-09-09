@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS drones (
+    id BIGSERIAL PRIMARY KEY,
+    drone_id VARCHAR(50) NOT NULL UNIQUE,
+    model VARCHAR(100) NOT NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'OFFLINE',
+    firmware_version VARCHAR(50),
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_drones_drone_id ON drones(drone_id);
+CREATE INDEX IF NOT EXISTS idx_drones_status ON drones(status);

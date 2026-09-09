@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    show-sql: false
+  kafka:
+    consumer:
+      auto-offset-reset: latest
+
+logging:
+  level:
+    com.droneiq: DEBUG
+    org.springframework.security: INFO
+    org.apache.kafka: WARN

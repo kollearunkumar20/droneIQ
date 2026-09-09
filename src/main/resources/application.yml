@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: droneiq-backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:droneiq}
+    username: ${DB_USER:droneiq}
+    password: ${DB_PASSWORD:droneiq_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 25
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:droneiq-telemetry-service}
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+server:
+  port: ${SERVER_PORT:8080}
+
+# Application Custom Properties
+app:
+  kafka:
+    telemetry-topic: ${KAFKA_TOPIC_TELEMETRY:drone.telemetry}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours
+
+simulator:
+  enabled: ${SIMULATOR_ENABLED:true}
+  interval-ms: ${SIMULATOR_INTERVAL_MS:1000}
+
+storage:
+  s3:
+    enabled: ${STORAGE_S3_ENABLED:false}
+    bucket: ${STORAGE_S3_BUCKET:droneiq-telemetry-data-lake}
+    region: ${STORAGE_S3_REGION:us-east-1}
+    batch-size: ${STORAGE_S3_BATCH_SIZE:50}
+    flush-interval-ms: ${STORAGE_S3_FLUSH_INTERVAL_MS:10000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
