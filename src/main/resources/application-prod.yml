@@ -5,11 +5,11 @@ spring:
     validate-on-migrate: true
 
 simulator:
-  enabled: false
+  enabled: ${SIMULATOR_ENABLED:false}
 
 storage:
   s3:
-    enabled: true
+    enabled: ${STORAGE_S3_ENABLED:false}
 
 logging:
   level:
