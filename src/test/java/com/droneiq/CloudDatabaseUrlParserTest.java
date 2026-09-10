@@ -35,7 +35,16 @@ class CloudDatabaseUrlParserTest {
         assertEquals("user", System.getProperty("spring.datasource.username"));
         assertEquals("pass", System.getProperty("spring.datasource.password"));
     }
+    @Test
+    void parseAndApplyDatabaseUrl_withRenderInternalUrlWithoutPort() {
+        String internalUrl = "postgresql://droneiq_postgre_user:TCoxGl1zfk99dNAvNqf844NWoWogv7sz@dpg-dah3vu9t0dsc73efmimg-a/droneiq_postgre";
+        DroneIqApplication.parseAndApplyDatabaseUrl(internalUrl);
 
+        assertEquals("jdbc:postgresql://dpg-dah3vu9t0dsc73efmimg-a:5432/droneiq_postgre",
+                System.getProperty("spring.datasource.url"));
+        assertEquals("droneiq_postgre_user", System.getProperty("spring.datasource.username"));
+        assertEquals("TCoxGl1zfk99dNAvNqf844NWoWogv7sz", System.getProperty("spring.datasource.password"));
+    }
     @Test
     void parseAndApplyDatabaseUrl_withNullOrBlank_doesNothing() {
         DroneIqApplication.parseAndApplyDatabaseUrl(null);

@@ -47,7 +47,7 @@ spring:
         spring.json.trusted.packages: "*"
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:${SERVER_PORT:8080}}
 
 # Application Custom Properties
 app:
