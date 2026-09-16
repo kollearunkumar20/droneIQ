@@ -50,6 +50,28 @@ public class DataInitializer implements CommandLineRunner {
             log.info("Initialized default admin user: admin / admin123");
         }
 
+        if (!userRepository.existsByUsername("superadmin")) {
+            User superAdmin = User.builder()
+                    .username("superadmin")
+                    .email("superadmin@droneiq.io")
+                    .passwordHash(passwordEncoder.encode("admin123"))
+                    .role(Role.SUPER_ADMIN)
+                    .build();
+            userRepository.save(superAdmin);
+            log.info("Initialized default superadmin user: superadmin / admin123");
+        }
+
+        if (!userRepository.existsByUsername("fleet_manager")) {
+            User fleetManager = User.builder()
+                    .username("fleet_manager")
+                    .email("manager@droneiq.io")
+                    .passwordHash(passwordEncoder.encode("manager123"))
+                    .role(Role.FLEET_MANAGER)
+                    .build();
+            userRepository.save(fleetManager);
+            log.info("Initialized default fleet manager user: fleet_manager / manager123");
+        }
+
         if (!userRepository.existsByUsername("operator")) {
             User operator = User.builder()
                     .username("operator")
@@ -59,6 +81,28 @@ public class DataInitializer implements CommandLineRunner {
                     .build();
             userRepository.save(operator);
             log.info("Initialized default operator user: operator / operator123");
+        }
+
+        if (!userRepository.existsByUsername("pilot")) {
+            User pilot = User.builder()
+                    .username("pilot")
+                    .email("pilot@droneiq.io")
+                    .passwordHash(passwordEncoder.encode("operator123"))
+                    .role(Role.FLIGHT_OPERATOR)
+                    .build();
+            userRepository.save(pilot);
+            log.info("Initialized default flight operator user: pilot / operator123");
+        }
+
+        if (!userRepository.existsByUsername("viewer")) {
+            User viewer = User.builder()
+                    .username("viewer")
+                    .email("viewer@droneiq.io")
+                    .passwordHash(passwordEncoder.encode("viewer123"))
+                    .role(Role.VIEWER)
+                    .build();
+            userRepository.save(viewer);
+            log.info("Initialized default viewer user: viewer / viewer123");
         }
     }
 

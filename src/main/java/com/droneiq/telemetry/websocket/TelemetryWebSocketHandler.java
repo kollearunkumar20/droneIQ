@@ -120,6 +120,10 @@ public class TelemetryWebSocketHandler extends TextWebSocketHandler {
 
         if (token != null && jwtService.validateToken(token)) {
             String username = jwtService.extractUsername(token);
+            String role = jwtService.extractClaim(token, claims -> claims.get("role", String.class));
+            if (role != null) {
+                session.getAttributes().put("role", role);
+            }
             authenticatedSessionMap.put(session.getId(), true);
 
             // Cancel timeout task
@@ -132,10 +136,12 @@ public class TelemetryWebSocketHandler extends TextWebSocketHandler {
             // Default to subscribe all unless client selects specific drones
             webSocketService.subscribeAll(session);
 
-            log.info("WebSocket session {} authenticated as user: {}", session.getId(), username);
+            log.info("WebSocket session {} authenticated as user: {} with role: {}", session.getId(), username, role);
             sendJson(session, Map.of(
                     "type", "AUTH_SUCCESS",
                     "username", username,
+                    "role", role != null ? role : "VIEWER",
+                    "accessLevel", "VIEWER".equalsIgnoreCase(role) ? "LIVE_VIEW_ONLY" : "FULL_ACCESS",
                     "message", "Authenticated successfully. Subscribed to all drone telemetry by default."
             ));
         } else {

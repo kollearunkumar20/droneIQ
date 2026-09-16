@@ -52,6 +52,7 @@ server:
 # Application Custom Properties
 app:
   kafka:
+    enabled: ${KAFKA_ENABLED:true}
     telemetry-topic: ${KAFKA_TOPIC_TELEMETRY:drone.telemetry}
 
 security:

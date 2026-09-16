@@ -7,10 +7,12 @@ import com.droneiq.drone.dto.UpdateDroneRequest;
 import com.droneiq.drone.entity.DroneStatus;
 import com.droneiq.drone.service.DroneService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +27,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/drones")
-@Tag(name = "Drones", description = "Drone Fleet Management Endpoints")
+@Tag(name = "Drones", description = "Drone Fleet Asset Registration & Management Endpoints")
+@SecurityRequirement(name = "BearerAuth")
 public class DroneController {
 
     private final DroneService droneService;
@@ -35,7 +38,8 @@ public class DroneController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all registered drones with optional status filter")
+    @PreAuthorize("hasAuthority('ASSET:VIEW')")
+    @Operation(summary = "Get all registered drones with optional status filter (All Roles)")
     public ResponseEntity<ApiResponse<List<DroneResponse>>> getAllDrones(
             @RequestParam(required = false) DroneStatus status) {
         List<DroneResponse> drones = droneService.getAllDrones(status);
@@ -43,14 +47,16 @@ public class DroneController {
     }
 
     @GetMapping("/{droneId}")
-    @Operation(summary = "Get drone registration details by Drone ID")
+    @PreAuthorize("hasAuthority('ASSET:VIEW')")
+    @Operation(summary = "Get drone registration details by Drone ID (All Roles)")
     public ResponseEntity<ApiResponse<DroneResponse>> getDroneById(@PathVariable String droneId) {
         DroneResponse drone = droneService.getDroneById(droneId);
         return ResponseEntity.ok(ApiResponse.success(drone));
     }
 
     @PostMapping
-    @Operation(summary = "Register a new drone in the fleet")
+    @PreAuthorize("hasAuthority('ASSET:FULL')")
+    @Operation(summary = "Register a new drone in the fleet (Super Admin & Fleet Manager)")
     public ResponseEntity<ApiResponse<DroneResponse>> createDrone(@Valid @RequestBody CreateDroneRequest request) {
         DroneResponse drone = droneService.createDrone(request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -58,7 +64,8 @@ public class DroneController {
     }
 
     @PutMapping("/{droneId}")
-    @Operation(summary = "Update drone details or operational status")
+    @PreAuthorize("hasAuthority('ASSET:FULL')")
+    @Operation(summary = "Update drone details or operational status (Super Admin & Fleet Manager)")
     public ResponseEntity<ApiResponse<DroneResponse>> updateDrone(
             @PathVariable String droneId,
             @Valid @RequestBody UpdateDroneRequest request) {
@@ -67,7 +74,8 @@ public class DroneController {
     }
 
     @DeleteMapping("/{droneId}")
-    @Operation(summary = "Deregister and delete drone from fleet")
+    @PreAuthorize("hasAuthority('ASSET:FULL')")
+    @Operation(summary = "Deregister and delete drone from fleet (Super Admin & Fleet Manager)")
     public ResponseEntity<ApiResponse<Void>> deleteDrone(@PathVariable String droneId) {
         droneService.deleteDrone(droneId);
         return ResponseEntity.ok(ApiResponse.success("Drone deleted successfully", null));

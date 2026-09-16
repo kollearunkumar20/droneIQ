@@ -71,7 +71,16 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        List<GrantedAuthority> authorities = new java.util.ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        Role canonical = role.toCanonical();
+        if (canonical != role) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + canonical.name()));
+        }
+        for (String permission : role.getPermissions()) {
+            authorities.add(new SimpleGrantedAuthority(permission));
+        }
+        return java.util.Collections.unmodifiableList(authorities);
     }
 
     @Override

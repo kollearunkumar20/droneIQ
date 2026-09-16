@@ -4,6 +4,10 @@ spring:
   flyway:
     validate-on-migrate: true
 
+app:
+  kafka:
+    enabled: ${KAFKA_ENABLED:false}
+
 simulator:
   enabled: ${SIMULATOR_ENABLED:false}
 
@@ -15,4 +19,4 @@ logging:
   level:
     com.droneiq: INFO
     org.springframework: WARN
-    org.apache.kafka: WARN
+    org.apache.kafka: ERROR
