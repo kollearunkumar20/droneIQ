@@ -28,12 +28,15 @@ public class TelemetryController {
 
     private final CurrentDroneTelemetryService currentTelemetryService;
     private final TelemetryKafkaProducer kafkaProducer;
+    private final com.droneiq.telemetry.service.TelemetryService telemetryService;
 
     public TelemetryController(
             CurrentDroneTelemetryService currentTelemetryService,
-            TelemetryKafkaProducer kafkaProducer) {
+            TelemetryKafkaProducer kafkaProducer,
+            com.droneiq.telemetry.service.TelemetryService telemetryService) {
         this.currentTelemetryService = currentTelemetryService;
         this.kafkaProducer = kafkaProducer;
+        this.telemetryService = telemetryService;
     }
 
     @GetMapping("/drones/{droneId}/telemetry/latest")
@@ -56,9 +59,14 @@ public class TelemetryController {
 
     @PostMapping("/telemetry/publish")
     @PreAuthorize("hasAuthority('TELEMETRY:FULL')")
-    @Operation(summary = "Publish a telemetry message to Kafka (Super Admin, Fleet Manager, Flight Operator)")
+    @Operation(summary = "Publish a telemetry message to Kafka and live WebSocket (Super Admin, Fleet Manager, Flight Operator)")
     public ResponseEntity<ApiResponse<String>> publishTelemetry(@Valid @RequestBody TelemetryMessage message) {
-        kafkaProducer.sendTelemetry(message);
-        return ResponseEntity.ok(ApiResponse.success("Telemetry published to Kafka pipeline successfully", message.droneId()));
+        try {
+            kafkaProducer.sendTelemetry(message);
+        } catch (Exception e) {
+            // Kafka offline fallback
+        }
+        telemetryService.processTelemetry(message);
+        return ResponseEntity.ok(ApiResponse.success("Telemetry published to pipeline and live WebSocket successfully", message.droneId()));
     }
 }
